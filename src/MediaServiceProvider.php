@@ -1,0 +1,33 @@
+<?php
+
+namespace Elegant\Media;
+
+use Illuminate\Support\ServiceProvider;
+
+class MediaServiceProvider extends ServiceProvider
+{
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__.'/../config/media.php', 'media');
+
+        if ($this->app->runningInConsole()) {
+            $this->registerConsole();
+        }
+    }
+
+    /**
+     * Register console related dependencies.
+     *
+     * @return void
+     */
+    protected function registerConsole(): void
+    {
+        $this->publishes([__DIR__.'/../config' => config_path()], 'laravel-media-config');
+        $this->publishes([__DIR__.'/../database/migrations/create_media_table.php' => database_path('migrations/'.date('Y_m_d_His').'_create_media_table.php'], 'laravel-admin-migrations');
+    }
+}

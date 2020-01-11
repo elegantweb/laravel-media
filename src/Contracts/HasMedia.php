@@ -1,0 +1,28 @@
+<?php
+
+namespace Elegant\Media\Contracts;
+
+use Elegant\Media\Media;
+use Elegant\Media\MediaGroup;
+use Elegant\Media\FileAdder;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\File;
+
+interface HasMedia
+{
+    public function media(): Relation;
+
+    public function addMedia($file): FileAdder;
+
+    public function addMediaGroup(string $name): MediaGroup;
+    public function getMediaGroup(string $name): MediaGroup;
+
+    public function getFallbackMediaUrl(string $group = 'default', string $conversion = null): ?string;
+    public function getFallbackMediaPath(string $group = 'default', string $conversion = null): ?string;
+
+    public function hasMedia(string $group = 'default'): bool;
+    public function getMedia(string $group = 'default'): array;
+    public function getFirstMedia(string $group = 'default'): ?Media;
+    public function getFirstMediaUrl(string $group = 'default', string $conversion = null): ?string;
+    public function getFirstMediaPath(string $group = 'default', string $conversion = null): ?string;
+}
