@@ -25,11 +25,9 @@
     },
     "extra": {
         "laravel": {
-            "laravel": {
-                "providers": [
-                    "Elegant\\Media\\MediaServiceProvider"
-                ]
-            }
+            "providers": [
+                "Elegant\\Media\\MediaServiceProvider"
+            ]
         }
     }
 }
