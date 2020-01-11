@@ -2,6 +2,7 @@
 
 namespace Elegant\Media;
 
+use Elegant\Media\Image\SepiaFilter;
 use Intervention\Image\ImageManagerStatic as Image;
 
 trait InteractsWithImage
@@ -88,6 +89,13 @@ trait InteractsWithImage
     public function greyscale()
     {
         $this->actions[] = ($img) => $img->greyscale();
+
+        return $this;
+    }
+
+    public function sepia()
+    {
+        $this->actions[] = ($img) => $img->filter(new SepiaFilter());
 
         return $this;
     }
