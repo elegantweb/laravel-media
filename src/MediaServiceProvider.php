@@ -7,6 +7,14 @@ use Illuminate\Support\ServiceProvider;
 class MediaServiceProvider extends ServiceProvider
 {
     /**
+     * @var array
+     */
+    protected $commands = [
+        Console\CleanCommand::class,
+        Console\RegenerateCommand::class,
+    ];
+
+    /**
      * Bootstrap the service provider.
      *
      * @return void
@@ -35,6 +43,8 @@ class MediaServiceProvider extends ServiceProvider
      */
     protected function registerConsole(): void
     {
+        $this->commands($this->commands);
+
         $this->publishes([__DIR__.'/../config' => config_path()], 'laravel-media-config');
         $this->publishes([__DIR__.'/../database/migrations/create_media_table.php' => database_path('migrations/'.date('Y_m_d_His').'_create_media_table.php')], 'laravel-media-migrations');
     }

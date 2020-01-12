@@ -14,7 +14,7 @@ class FileAdder
     protected $mediaName;
     protected $mediaDirectory;
     protected $mediaProperties = [];
-    protected $mediaConversions = [];
+    protected $mediaManipulations = [];
 
     public function __construct(HasMedia $model, File $file)
     {
@@ -29,9 +29,9 @@ class FileAdder
         return $this;
     }
 
-    public function useFilename(string $name): self
+    public function useName(string $name): self
     {
-        $this->mediaFilename = $name;
+        $this->mediaName = $name;
 
         return $this;
     }
@@ -50,9 +50,9 @@ class FileAdder
         return $this;
     }
 
-    public function useConversions(array $properties): self
+    public function useManipulations(array $manipulations): self
     {
-        $this->mediaConversions = $conversions;
+        $this->mediaManipulations = $manipulations;
 
         return $this;
     }
@@ -73,10 +73,10 @@ class FileAdder
 
         $media->storeFile($this->file, $this->preserveOriginal);
 
-        $conversions = array_merge($this->mediaConversions, $group->getConversions());
+        $manipulations = array_merge($this->mediaManipulations, $group->getManipulations());
 
-        foreach ($conversions as $conversion) {
-            $this->toMediaConversion($conversion, $media);
+        foreach ($manipulations as $manipulation) {
+            $this->toMediaConversion($manipulation, $media);
         }
 
         $collection = $this->model->getMedia($group->getName());
@@ -86,19 +86,20 @@ class FileAdder
         }
     }
 
-    public function toMediaConversion(string $name, Media $originalMedia): void
+    public function toMediaConversion(string $manipulationName, Media $originalMedia): void
     {
-        $conversion = $this->model->getMediaConversion($name);
+        $manipulation = $this->model->getMediaManipulation($manipulationName);
 
-        $file = $conversion->perform($this->file);
+        $file = $manipulation->perform($this->file);
 
         $media = new Media();
-        $media->disk = $conversion->getDiskName() ?? $originalMedia->disk;
-        $media->group = $conversion->getName();
+        $media->disk = $manipulation->getDiskName() ?? $originalMedia->disk;
+        $media->group = 'conversions';
+        $media->manipulation = $manipulation->getName();
         $media->mime_type = $file->getMimeType();
         $media->size = $file->getSize();
-        $media->name = $this->determineConversionName($originalMedia, $conversion, $this->file);
-        $media->directory = $this->determineConversionDirectory($originalMedia, $conversion, $this->file);
+        $media->name = $this->determineConversionName($originalMedia, $manipulation, $this->file);
+        $media->directory = $this->determineConversionDirectory($originalMedia, $manipulation, $this->file);
         $originalMedia->conversions()->save($media);
 
         $media->storeFile($file, false);
@@ -119,13 +120,13 @@ class FileAdder
         return $this->mediaDirectory ?? $this->getPathGenerator()->getDirectory($model, $file);
     }
 
-    protected function determineConversionName(Media $media, MediaConversion $conversion, File $file): string
+    protected function determineConversionName(Media $media, MediaManipulation $manipulation, File $file): string
     {
-        return $this->getPathGenerator()->getConversionName($media, $conversion, $file);
+        return $this->getPathGenerator()->getConversionName($media, $manipulation, $file);
     }
 
-    protected function determineConversionDirectory(Media $media, MediaConversion $conversion, File $file): string
+    protected function determineConversionDirectory(Media $media, MediaManipulation $manipulation, File $file): string
     {
-        return $this->getPathGenerator()->getConversionDirectory($media, $conversion, $file);
+        return $this->getPathGenerator()->getConversionDirectory($media, $manipulation, $file);
     }
 }

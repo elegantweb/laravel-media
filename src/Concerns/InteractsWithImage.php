@@ -125,6 +125,9 @@ trait InteractsWithImage
 
         $image->save($tmpfile);
 
+        // if we don't run this, file will report false size
+        clearstatcache(true, $tmpfile->getPathname());
+
         return $tmpfile;
     }
 }

@@ -1,8 +1,10 @@
 <?php
 
-namespace Elegant\Console;
+namespace Elegant\Media\Console;
 
 use Elegant\Media\Media;
+use Elegant\Media\TemporaryFile;
+use Elegant\Media\FileAdder;
 use Illuminate\Support\Collection;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
@@ -22,17 +24,18 @@ media:regenerate
 {--model-type=* : Regenerate media of specific model}
 {--model-id=* : Regenerate media of specific model}
 {--group=* : Regenerate specific groups}
-{--conversion=* : Regenerate specific conversions}
+{--manipulation=* : Regenerate conversions with specific manipulation}
 {--only-missing : Regenerate only missing conversions}
 {--force : Force the operation to run when in production}
-EOF;
+EOF
+    ;
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Regenerate the derived images of media';
+    protected $description = 'Regenerate media conversions';
 
     /**
      * Execute the console command.
@@ -41,65 +44,71 @@ EOF;
      */
     public function handle()
     {
-        if (!$this->confirmToProceed())
+        if (!$this->confirmToProceed()) {
             return;
+        }
 
         $media = $this->getMedia();
 
-        $progressBar = $this->output->createProgressBar($media->count());
+        $bar = $this->output->createProgressBar($media->count());
+
+        $this->info('Regenerating media conversions...');
+
+        $bar->start();
 
         foreach ($media as $m) {
-            if ($this->shouldGenerateMedia($m)) {
-                $this->generateMedia($m);
-            }
+            $this->generateMedia($m);
+            $bar->advance();
         }
+
+        $bar->finish();
+        $this->line('');
+
+        $this->info('All done!');
     }
 
     protected function getMedia(): Collection
     {
+        // return media without any manipulation (don't return conversions)
+        $query = Media::where('manipulation', null);
+
         $ids = $this->option('id');
         if (!empty($ids))
-            return Media::whereIn('id', $ids)->get();
+            $query->whereIn('id', $ids);
 
         $modelTypes = $this->option('model-type');
         if (!empty($modelTypes))
-            return Media::whereIn('model_type', $modelTypes)->get();
+            $query->whereIn('model_type', $modelTypes);
 
         $modelIds = $this->option('model-id');
-        if (!empty($modelIds)
-            return Media::whereIn('model_id', $modelIds)->get();
-    }
+        if (!empty($modelIds))
+            $query->whereIn('model_id', $modelIds);
 
-    protected function shouldGenerateMedia(Media $media): bool
-    {
         $groups = $this->option('group');
+        if (!empty($groups))
+            $query->whereIn('group', $groups);
 
-        if (!empty($groups) and !in_array($m->group, $groups))
-            return false;
-
-        return true;
+        return $query->get();
     }
 
-    protected function generateMedia(Media $media)
+    protected function generateMedia(Media $media): void
     {
-        $model = $media->model;
+        $group = $media->model->getMediaGroup($media->group);
 
-        $group = $model->getMediaGroup($media->group);
+        $manipulations = $group->getManipulations();
 
-        $conversions = $group->getConversions();
-
-        foreach ($conversions as $conversion) {
-            if ($this->shouldPerformConversion($conversion)) {
-                $this->performConversion($conversion, $media);
+        foreach ($manipulations as $manipulation) {
+            if ($this->shouldPerformManipulation($manipulation, $media)) {
+                $this->performManipulation($manipulation, $media);
             }
         }
     }
 
-    protected function shouldPerformConversion(string $name, Media $originalMedia): bool
+    protected function shouldPerformManipulation(string $name, Media $originalMedia): bool
     {
-        $conversions = $this->option('conversion');
+        $manipulations = $this->option('manipulation');
 
-        if (!empty($conversions) and !in_array($name, $conversions))
+        if (!empty($manipulations) and !in_array($name, $manipulations))
             return false;
 
         if (!$originalMedia->hasConversion($name))
@@ -111,13 +120,20 @@ EOF;
         return true;
     }
 
-    protected function performConversion(Media $originalMedia, string $name)
+    protected function performManipulation(string $name, Media $originalMedia): void
     {
         $tmpfile = new TemporaryFile();
 
-        // maybe the original media file is remote, so we create a local temp file and work on it
-        stream_copy_to_stream($originalMedia->stream(), $tmpfile->openFile('w'));
+        // maybe the original media file is remote, so we create a local temp file to work on it
+        $handle = fopen($tmpfile->getPathname(), 'w');
+        stream_copy_to_stream($originalMedia->stream(), $handle);
+        fclose($handle);
 
-        (new FileAdder($originalMedia->model, $tmpfile))->toMediaConversion($name, $originalMedia);
+        // delete old conversion
+        $originalMedia->deleteConversion($name);
+
+        // add new conversion
+        (new FileAdder($originalMedia->model, $tmpfile))
+                        ->toMediaConversion($name, $originalMedia);
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 trait HasMedia
 {
     protected array $mediaGroups = [];
-    protected array $mediaConversions = [];
+    protected array $mediaManipulations = [];
 
     public static function bootHasMedia(): void
     {
@@ -46,30 +46,30 @@ trait HasMedia
     {
     }
 
-    public function addMediaConversion(string $name): MediaConversion
+    public function addMediaManipulation(string $name): MediaManipulation
     {
-        return $this->mediaConversions[$name] = new MediaConversion($name);
+        return $this->mediaManipulations[$name] = new MediaManipulation($name);
     }
 
-    public function getMediaConversion(string $name): ?MediaConversion
+    public function getMediaManipulation(string $name): ?MediaManipulation
     {
-        $this->registerMediaConversions();
+        $this->registerMediaManipulations();
 
-        return $this->mediaConversions[$name] ?? null;
+        return $this->mediaManipulations[$name] ?? null;
     }
 
-    public function registerMediaConversions(): void
+    public function registerMediaManipulations(): void
     {
     }
 
-    public function getFallbackMediaUrl(string $group = 'default', string $conversion = null): ?string
+    public function getFallbackMediaUrl(string $group = 'default', string $manipulation = null): ?string
     {
-        return $this->getMediaGroup($group)->getFallbackUrl($conversion);
+        return $this->getMediaGroup($group)->getFallbackUrl($manipulation);
     }
 
-    public function getFallbackMediaPath(string $group = 'default', string $conversion = null): ?string
+    public function getFallbackMediaPath(string $group = 'default', string $manipulation = null): ?string
     {
-        return $this->getMediaGroup($group)->getFallbackPath($conversion);
+        return $this->getMediaGroup($group)->getFallbackPath($manipulation);
     }
 
     public function getFirstMedia(string $group = 'default'): ?Media
@@ -77,25 +77,25 @@ trait HasMedia
         return $this->media()->where('group', $group)->first();
     }
 
-    public function getFirstMediaUrl(string $group = 'default', string $conversion = null): ?string
+    public function getFirstMediaUrl(string $group = 'default', string $manipulation = null): ?string
     {
         $media = $this->getFirstMedia($group);
 
         if ($media) {
-            return $media->getUrl($conversion);
+            return $media->getUrl($manipulation);
         } else {
-            return $this->getFallbackMediaUrl($group, $conversion);
+            return $this->getFallbackMediaUrl($group, $manipulation);
         }
     }
 
-    public function getFirstMediaPath(string $group = 'default', string $conversion = null): ?string
+    public function getFirstMediaPath(string $group = 'default', string $manipulation = null): ?string
     {
         $media = $this->getFirstMedia($group);
 
         if ($media) {
-            return $media->getPath($conversion);
+            return $media->getPath($manipulation);
         } else {
-            return $this->getFallbackMediaPath($group, $conversion);
+            return $this->getFallbackMediaPath($group, $manipulation);
         }
     }
 

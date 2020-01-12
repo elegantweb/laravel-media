@@ -8,9 +8,9 @@ class MediaGroup
 {
     protected $name;
     protected $size;
-    protected $disk;
+    protected $diskName;
     protected $mediaProperties = [];
-    protected $mediaConversions = [];
+    protected $mediaManipulations = [];
     protected $fallbackUrls = [];
     protected $fallbackPaths = [];
 
@@ -45,14 +45,14 @@ class MediaGroup
 
     public function useDisk(string $name): self
     {
-        $this->disk = $name;
+        $this->diskName = $name;
 
         return $this;
     }
 
     public function getDiskName(): string
     {
-        return $this->disk ?? config('media.disk');
+        return $this->diskName ?? config('media.disk');
     }
 
     public function withProperties(array $properties): self
@@ -67,39 +67,39 @@ class MediaGroup
         return $this->mediaProperties;
     }
 
-    public function useConversions(array $conversions): self
+    public function useManipulations(array $manipulations): self
     {
-        $this->mediaConversions = $conversions;
+        $this->mediaManipulations = $manipulations;
 
         return $this;
     }
 
-    public function getConversions(): array
+    public function getManipulations(): array
     {
-        return $this->mediaConversions;
+        return $this->mediaManipulations;
     }
 
-    public function useFallbackUrl(string $url, string $conversion = null): self
+    public function useFallbackUrl(string $url, string $manipulation = null): self
     {
-        $this->fallbackUrls[$conversion] = $url;
+        $this->fallbackUrls[$manipulation] = $url;
 
         return $this;
     }
 
-    public function getFallbackUrl(string $conversion = null): ?string
+    public function getFallbackUrl(string $manipulation = null): ?string
     {
-        return $this->fallbackUrls[$conversion] ?? $this->fallbackUrls[null] ?? null;
+        return $this->fallbackUrls[$manipulation] ?? $this->fallbackUrls[null] ?? null;
     }
 
-    public function useFallbackPath(string $path, string $conversion = null): self
+    public function useFallbackPath(string $path, string $manipulation = null): self
     {
-        $this->fallbackPaths[$conversion] = $path;
+        $this->fallbackPaths[$manipulation] = $path;
 
         return $this;
     }
 
-    public function getFallbackPath(string $conversion = null): ?string
+    public function getFallbackPath(string $manipulation = null): ?string
     {
-        return $this->fallbackPaths[$conversion] ?? $this->fallbackPaths[null] ?? null;
+        return $this->fallbackPaths[$manipulation] ?? $this->fallbackPaths[null] ?? null;
     }
 }

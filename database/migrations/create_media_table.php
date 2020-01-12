@@ -16,6 +16,7 @@ class CreateMediaTable extends Migration
             $table->morphs('model');
             $table->string('disk');
             $table->string('group');
+            $table->string('manipulation')->nullable();
             $table->string('name');
             $table->string('directory');
             $table->string('mime_type')->nullable();

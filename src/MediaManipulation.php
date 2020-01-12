@@ -5,12 +5,12 @@ namespace Elegant\Media;
 use Elegant\Media\Concerns\InteractsWithImage;
 use Illuminate\Http\File;
 
-class MediaConversion
+class MediaManipulation
 {
     use InteractsWithImage;
 
     protected $name;
-    protected $disk;
+    protected $diskName;
 
     public function __construct(string $name)
     {
@@ -24,13 +24,13 @@ class MediaConversion
 
     public function useDisk(string $name): self
     {
-        $this->disk = $name;
+        $this->diskName = $name;
 
         return $this;
     }
 
     public function getDiskName(): ?string
     {
-        return $this->disk;
+        return $this->diskName;
     }
 }

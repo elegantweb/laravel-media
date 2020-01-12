@@ -16,15 +16,15 @@ class PathGenerator implements PathGeneratorContract
 
     public function getDirectory(HasMedia $model, File $file): string
     {
-        return join('/', ['media', date('Y'), date('m')]);
+        return join('/', [date('Y'), date('m')]);
     }
 
-    public function getConversionName(Media $media, MediaConversion $conversion, File $file): string
+    public function getConversionName(Media $media, MediaManipulation $manipulation, File $file): string
     {
-        return "{$media->filename}-{$conversion->getName()}.{$file->extension()}";
+        return "{$media->filename}-{$manipulation->getName()}.{$file->extension()}";
     }
 
-    public function getConversionDirectory(Media $media, MediaConversion $conversion, File $file): string
+    public function getConversionDirectory(Media $media, MediaManipulation $manipulation, File $file): string
     {
         return $media->directory;
     }

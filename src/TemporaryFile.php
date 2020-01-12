@@ -8,7 +8,7 @@ class TemporaryFile extends File
 {
     public function __construct()
     {
-        $tmpfile = tempnam(sys_get_temp_dir(), 'LARAVEL_MEDIA_');
+        $tmpfile = tempnam(sys_get_temp_dir(), 'laravel-media-');
 
         parent::__construct($tmpfile);
     }

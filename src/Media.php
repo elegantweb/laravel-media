@@ -41,19 +41,29 @@ class Media extends Model implements Responsable
         return $this->morphMany(Media::class, 'model');
     }
 
-    public function hasConversion(string $name): bool
+    public function hasConversion(string $manipulation): bool
     {
-        return $this->conversions()->where('group', $name)->exists();
+        return $this->conversions()->where('manipulation', $manipulation)->exists();
     }
 
-    public function getConversion(string $name): ?Media
+    public function getConversion(string $manipulation): ?Media
     {
-        return $this->conversions()->where('group', $name)->first();
+        return $this->conversions()->where('manipulation', $manipulation)->first();
+    }
+
+    public function deleteConversion(string $manipulation): bool
+    {
+        return $this->conversions()->where('manipulation', $manipulation)->delete();
+    }
+
+    public function deleteConversions(): void
+    {
+        $this->conversions->each->delete();
     }
 
     public function getPathAttribute()
     {
-        return sprintf("%s/%s", $this->directory, $this->name);
+        return "{$this->directory}/{$this->name}";
     }
 
     public function getExtensionAttribute()
@@ -66,31 +76,37 @@ class Media extends Model implements Responsable
         return pathinfo($this->name, PATHINFO_FILENAME);
     }
 
-    public function getPath(string $conversion = null): ?string
+    public function scopePath($query, string $path)
     {
-        if (null === $conversion) return $this->path;
-
-        return optional($this->getConversion($conversion))->path;
+        $query->where('name', pathinfo($path, PATHINFO_BASENAME));
+        $query->where('directory', pathinfo($path, PATHINFO_DIRNAME));
     }
 
-    public function getUrl(string $conversion = null): ?string
+    public function getPath(string $manipulation = null): ?string
     {
-        return Storage::disk($this->disk)->url($this->getPath($conversion));
+        if (null === $manipulation) return $this->path;
+
+        return optional($this->getConversion($manipulation))->path;
     }
 
-    public function getTemporaryUrl(DateTimeInterface $expiration, string $conversion = null, array $options): ?string
+    public function getUrl(string $manipulation = null): ?string
     {
-        return Storage::disk($this->disk)->temporaryUrl($this->getPath($conversion), $expiration, $options);
+        return Storage::disk($this->disk)->url($this->getPath($manipulation));
     }
 
-    public function download(string $conversion = null)
+    public function getTemporaryUrl(DateTimeInterface $expiration, string $manipulation = null, array $options): ?string
     {
-        return Storage::disk($this->disk)->download($this->getPath($conversion));
+        return Storage::disk($this->disk)->temporaryUrl($this->getPath($manipulation), $expiration, $options);
     }
 
-    public function response(string $conversion = null)
+    public function download(string $manipulation = null)
     {
-        return Storage::disk($this->disk)->response($this->getPath($conversion));
+        return Storage::disk($this->disk)->download($this->getPath($manipulation));
+    }
+
+    public function response(string $manipulation = null)
+    {
+        return Storage::disk($this->disk)->response($this->getPath($manipulation));
     }
 
     public function toResponse($request)
@@ -98,9 +114,9 @@ class Media extends Model implements Responsable
         return $this->response();
     }
 
-    public function stream(string $conversion = null): resource
+    public function stream(string $manipulation = null)
     {
-        return Storage::disk($this->disk)->readStream($this->getPath($conversion));
+        return Storage::disk($this->disk)->readStream($this->getPath($manipulation));
     }
 
     public function storeFile(File $file, bool $preserveOriginal = false): void
@@ -123,10 +139,5 @@ class Media extends Model implements Responsable
     public function deleteFile(): void
     {
         Storage::disk($this->disk)->delete($this->path);
-    }
-
-    public function deleteConversions(): void
-    {
-        $this->conversions->each->delete();
     }
 }
