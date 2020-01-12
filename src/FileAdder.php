@@ -62,28 +62,27 @@ class FileAdder
         $group = $this->model->getMediaGroup($name);
 
         $media = new Media();
-        $media->model = $model;
         $media->disk = $group->getDiskName();
         $media->group = $group->getName();
-        $media->properties = array_merge($this->mediaProperties, $group->getMediaProperties());
+        $media->properties = array_merge($this->mediaProperties, $group->getProperties());
         $media->mime_type = $this->file->getMimeType();
         $media->size = $this->file->getSize();
-        $media->name = $this->determineMediaName($media, $this->file);
-        $media->directory = $this->determineMediaDirectory($media, $this->file);
-        $model->media()->save($media);
+        $media->name = $this->determineMediaName($this->model, $this->file);
+        $media->directory = $this->determineMediaDirectory($this->model, $this->file);
+        $this->model->media()->save($media);
 
         $media->storeFile($this->file, $this->preserveOriginal);
 
-        $conversions = array_merge($this->mediaConversions, $group->getMediaConversions());
+        $conversions = array_merge($this->mediaConversions, $group->getConversions());
 
         foreach ($conversions as $conversion) {
             $this->createConversion($conversion, $media);
         }
 
-        $collection = $this->model->getMedia();
+        $collection = $this->model->getMedia($group->getName());
 
-        if ($collection->count() > $group->size()) {
-            $this->model->deleteMediaExcept($collection->reverse()->take($group->size()));
+        if (null !== $size = $group->getSize() and $size < $count = $collection->count()) {
+            $collection->take($count - $size)->each->delete();
         }
     }
 
@@ -108,14 +107,14 @@ class FileAdder
         return resolve(config('media.path_generator'));
     }
 
-    protected function determineMediaName(Media $media, File $file): string
+    protected function determineMediaName(HasMedia $model, File $file): string
     {
-        return $this->mediaName ?? $this->getPathGenerator()->getMediaName($media, $file);
+        return $this->mediaName ?? $this->getPathGenerator()->getName($model, $file);
     }
 
-    protected function determineMediaDirectory(Media $media, File $file): string
+    protected function determineMediaDirectory(HasMedia $model, File $file): string
     {
-        return $this->mediaDirectory ?? $this->getPathGenerator()->getMediaDirectory($media, $file);
+        return $this->mediaDirectory ?? $this->getPathGenerator()->getDirectory($model, $file);
     }
 
     protected function determineConversionName(Media $media, MediaConversion $conversion, File $file): string

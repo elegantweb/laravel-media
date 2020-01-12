@@ -31,7 +31,7 @@ class MediaGroup
         return $this;
     }
 
-    public function getSize(): int
+    public function getSize(): ?int
     {
         return $this->size;
     }

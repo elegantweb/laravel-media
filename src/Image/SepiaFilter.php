@@ -5,10 +5,10 @@ namespace Elegant\Media\Image;
 use Intervention\Image\Image;
 use Intervention\Image\Filters\FilterInterface;
 
-class DemoFilter implements FilterInterface
+class SepiaFilter implements FilterInterface
 {
     /**
-     * Applies filter effects to given image
+     * Applies sepia filter to the image.
      *
      * @see https://github.com/thephpleague/glide/blob/master/src/Manipulators/Filter.php#L47-L52
      * @param Image $image

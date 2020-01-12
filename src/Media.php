@@ -2,13 +2,24 @@
 
 namespace Elegant\Media;
 
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Http\Request;
+use Illuminate\Http\File;
 
-class Media extends Model
+class Media extends Model implements Responsable
 {
+    protected $casts = [
+        'properties' => 'array',
+    ];
+
+    protected $attributes = [
+        'properties' => '[]',
+    ];
+
     protected static function boot(): void
     {
         parent::boot();
@@ -31,7 +42,29 @@ class Media extends Model
 
     public function getConversion(string $name): ?Media
     {
-        return $this->conversions()->where('name', $name)->first();
+        return $this->conversions()->where('group', $name)->first();
+    }
+
+    public function getPathAttribute()
+    {
+        return sprintf("%s/%s", $this->directory, $this->name);
+    }
+
+    public function getExtensionAttribute()
+    {
+        return pathinfo($this->name, PATHINFO_EXTENSION);
+    }
+
+    public function getFilenameAttribute()
+    {
+        return pathinfo($this->name, PATHINFO_FILENAME);
+    }
+
+    public function getPath(string $conversion = null): ?string
+    {
+        if (null === $conversion) return $this->path;
+
+        return optional($this->getConversion($conversion))->path;
     }
 
     public function getUrl(string $conversion = null): ?string
@@ -39,29 +72,35 @@ class Media extends Model
         return Storage::disk($this->disk)->url($this->getPath($conversion));
     }
 
-    public function getPath(string $conversion = null): ?string
+    public function download(string $conversion = null)
     {
-        if (null === $conversion) {
-            return sprintf("%s/%s", $this->directory, $this->filename);
-        } else {
-            return optional($this->getConversion($conversion))->getPath();
-        }
+        return Storage::disk($this->disk)->download($this->getPath($conversion));
+    }
+
+    public function response(string $conversion = null)
+    {
+        return Storage::disk($this->disk)->response($this->getPath($conversion));
+    }
+
+    public function toResponse($request)
+    {
+        return $this->response();
     }
 
     public function storeFile(File $file, bool $preserveOriginal = false): void
     {
         if (!$preserveOriginal) $this->deleteFile();
 
-        Storage::disk($this->disk)->putFileAs($this->directory, $file, $this->filename);
+        Storage::disk($this->disk)->putFileAs($this->directory, $file, $this->name);
     }
 
     public function deleteFile(): void
     {
-        Storage::disk($this->disk)->delete($this->getPath());
+        Storage::disk($this->disk)->delete($this->path);
     }
 
     public function deleteConversions(): void
     {
-        $this->conversions()->each->delete();
+        $this->conversions->each->delete();
     }
 }

@@ -14,7 +14,7 @@ trait HasMedia
     {
         static::deleted(function ($model) {
             if (!in_array(SoftDeletes::class, class_uses_recursive($entity))) {
-                $model->medias()->each->delete();
+                $model->media->each->delete();
             }
         });
     }
@@ -59,9 +59,9 @@ trait HasMedia
         return $this->getMediaGroup($group)->getFallbackPath($conversion);
     }
 
-    public function getFirstMedia(string $group = 'default'): ?Medium
+    public function getFirstMedia(string $group = 'default'): ?Media
     {
-        return $this->medias()->where('group', $group)->first();
+        return $this->media()->where('group', $group)->first();
     }
 
     public function getFirstMediaUrl(string $group = 'default', string $conversion = null): ?string
@@ -93,6 +93,6 @@ trait HasMedia
 
     public function getMedia(string $group = 'default'): Collection
     {
-        return $this->medias()->where('group', $group)->get();
+        return $this->media()->where('group', $group)->get();
     }
 }

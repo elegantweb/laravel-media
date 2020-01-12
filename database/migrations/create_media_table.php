@@ -18,7 +18,7 @@ class CreateMediaTable extends Migration
             $table->string('group');
             $table->string('name');
             $table->string('directory');
-            $table->string('mime_type');
+            $table->string('mime_type')->nullable();
             $table->unsignedBigInteger('size');
             $table->json('properties');
             $table->timestamps();
