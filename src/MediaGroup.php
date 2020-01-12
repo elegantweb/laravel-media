@@ -88,7 +88,7 @@ class MediaGroup
 
     public function getFallbackUrl(string $conversion = null): ?string
     {
-        return $this->fallbackUrl[$conversion] ?? null;
+        return $this->fallbackUrls[$conversion] ?? $this->fallbackUrls[null] ?? null;
     }
 
     public function useFallbackPath(string $path, string $conversion = null): self
@@ -100,6 +100,6 @@ class MediaGroup
 
     public function getFallbackPath(string $conversion = null): ?string
     {
-        return $this->fallbackPath[$conversion] ?? null;
+        return $this->fallbackPaths[$conversion] ?? $this->fallbackPaths[null] ?? null;
     }
 }

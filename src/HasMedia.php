@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 trait HasMedia
 {
     protected array $mediaGroups = [];
+    protected array $mediaConversions = [];
 
     public static function bootHasMedia(): void
     {
@@ -31,11 +32,7 @@ trait HasMedia
 
     public function addMediaGroup(string $name): MediaGroup
     {
-        $group = new MediaGroup($name);
-
-        $this->mediaGroups[$name] = $group;
-
-        return $group;
+        return $this->mediaGroups[$name] = new MediaGroup($name);
     }
 
     public function getMediaGroup(string $name): MediaGroup
@@ -46,6 +43,22 @@ trait HasMedia
     }
 
     public function registerMediaGroups(): void
+    {
+    }
+
+    public function addMediaConversion(string $name): MediaConversion
+    {
+        return $this->mediaConversions[$name] = new MediaConversion($name);
+    }
+
+    public function getMediaConversion(string $name): ?MediaConversion
+    {
+        $this->registerMediaConversions();
+
+        return $this->mediaConversions[$name] ?? null;
+    }
+
+    public function registerMediaConversions(): void
     {
     }
 

@@ -76,7 +76,7 @@ class FileAdder
         $conversions = array_merge($this->mediaConversions, $group->getConversions());
 
         foreach ($conversions as $conversion) {
-            $this->createConversion($conversion, $media);
+            $this->toMediaConversion($conversion, $media);
         }
 
         $collection = $this->model->getMedia($group->getName());
@@ -86,8 +86,10 @@ class FileAdder
         }
     }
 
-    protected function createConversion(MediaConversion $conversion, Media $originalMedia): void
+    public function toMediaConversion(string $name, Media $originalMedia): void
     {
+        $conversion = $this->model->getMediaConversion($name);
+
         $file = $conversion->perform($this->file);
 
         $media = new Media();

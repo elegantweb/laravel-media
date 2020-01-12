@@ -2,7 +2,7 @@
 
 namespace Elegant\Media\Concerns;
 
-use Elegant\Media\TmpFile;
+use Elegant\Media\TemporaryFile;
 use Elegant\Media\Image\SepiaFilter;
 use Intervention\Image\ImageManagerStatic as Image;
 
@@ -121,10 +121,10 @@ trait InteractsWithImage
 
         foreach ($this->actions as $action) $action($image);
 
-        $tmpfile = tempnam(sys_get_temp_dir(), 'LARAVEL_MEDIA_');
+        $tmpfile = new TemporaryFile();
 
         $image->save($tmpfile);
 
-        return new TmpFile($tmpfile);
+        return $tmpfile;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Elegant\Media;
 
+use DateTimeInterface;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +41,11 @@ class Media extends Model implements Responsable
         return $this->morphMany(Media::class, 'model');
     }
 
+    public function hasConversion(string $name): bool
+    {
+        return $this->conversions()->where('group', $name)->exists();
+    }
+
     public function getConversion(string $name): ?Media
     {
         return $this->conversions()->where('group', $name)->first();
@@ -72,6 +78,11 @@ class Media extends Model implements Responsable
         return Storage::disk($this->disk)->url($this->getPath($conversion));
     }
 
+    public function getTemporaryUrl(DateTimeInterface $expiration, string $conversion = null, array $options): ?string
+    {
+        return Storage::disk($this->disk)->temporaryUrl($this->getPath($conversion), $expiration, $options);
+    }
+
     public function download(string $conversion = null)
     {
         return Storage::disk($this->disk)->download($this->getPath($conversion));
@@ -87,11 +98,26 @@ class Media extends Model implements Responsable
         return $this->response();
     }
 
+    public function stream(string $conversion = null): resource
+    {
+        return Storage::disk($this->disk)->readStream($this->getPath($conversion));
+    }
+
     public function storeFile(File $file, bool $preserveOriginal = false): void
     {
         if (!$preserveOriginal) $this->deleteFile();
 
         Storage::disk($this->disk)->putFileAs($this->directory, $file, $this->name);
+    }
+
+    public function fileExists(): bool
+    {
+        return Storage::disk($this->disk)->exists($this->path);
+    }
+
+    public function fileMissing(): bool
+    {
+        return !$this->fileExists();
     }
 
     public function deleteFile(): void
