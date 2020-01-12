@@ -49,7 +49,7 @@ EOF;
 
         $this->diskName = $this->argument('disk') ?? config('media.disk');
 
-        $this->info("Cleaning {$diskName} disk...");
+        $this->info("Cleaning {$this->diskName} disk...");
 
         $this->deleteOrphanMedia();
 
