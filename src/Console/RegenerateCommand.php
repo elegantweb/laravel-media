@@ -27,8 +27,7 @@ media:regenerate
 {--manipulation=* : Regenerate conversions with specific manipulation}
 {--only-missing : Regenerate only missing conversions}
 {--force : Force the operation to run when in production}
-EOF
-    ;
+EOF;
 
     /**
      * The console command description.
