@@ -4,11 +4,9 @@ namespace Elegant\Media;
 
 use DateTimeInterface;
 use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Http\UploadedFile as File;
 
 class Media extends Model implements Responsable
 {
@@ -90,22 +88,30 @@ class Media extends Model implements Responsable
 
     public function getUrl(string $manipulation = null): ?string
     {
-        return Storage::disk($this->disk)->url($this->getPath($manipulation));
+        if (null === $manipulation) return $this->file()->getUrl();
+
+        return optional($this->getConversion($manipulation))->getUrl();
     }
 
-    public function getTemporaryUrl(DateTimeInterface $expiration, string $manipulation = null, array $options): ?string
+    public function getTemporaryUrl(DateTimeInterface $expiration, string $manipulation = null, array $options = []): ?string
     {
-        return Storage::disk($this->disk)->temporaryUrl($this->getPath($manipulation), $expiration, $options);
+        if (null === $manipulation) return $this->file()->getTemporaryUrl($expiration, $options);
+
+        return optional($this->getConversion($manipulation))->getTemporaryUrl($expiration, null, $options);
     }
 
     public function download(string $manipulation = null)
     {
-        return Storage::disk($this->disk)->download($this->getPath($manipulation));
+        if (null === $manipulation) return $this->file()->download();
+
+        return optional($this->getConversion($manipulation))->download();
     }
 
     public function response(string $manipulation = null)
     {
-        return Storage::disk($this->disk)->response($this->getPath($manipulation));
+        if (null === $manipulation) return $this->file()->response();
+
+        return optional($this->getConversion($manipulation))->response();
     }
 
     public function toResponse($request)
@@ -115,28 +121,13 @@ class Media extends Model implements Responsable
 
     public function stream(string $manipulation = null)
     {
-        return Storage::disk($this->disk)->readStream($this->getPath($manipulation));
+        if (null === $manipulation) return $this->file()->readStream();
+
+        return optional($this->getConversion($manipulation))->readStream();
     }
 
-    public function storeFile(File $file, bool $preserveOriginal = false): void
+    public function file(): RemoteFile
     {
-        if (!$preserveOriginal) $this->deleteFile();
-
-        Storage::disk($this->disk)->putFileAs($this->directory, $file, $this->name);
-    }
-
-    public function fileExists(): bool
-    {
-        return Storage::disk($this->disk)->exists($this->path);
-    }
-
-    public function fileMissing(): bool
-    {
-        return !$this->fileExists();
-    }
-
-    public function deleteFile(): void
-    {
-        Storage::disk($this->disk)->delete($this->path);
+        return new RemoteFile($this->path, $this->disk);
     }
 }

@@ -2,19 +2,19 @@
 
 namespace Elegant\Media;
 
-use Illuminate\Http\UploadedFile as File;
+use Illuminate\Http\File;
 
 class TemporaryFile extends File
 {
-    public function __construct(string $originalName)
+    public function __construct()
     {
         $tmpfile = tempnam(sys_get_temp_dir(), 'laravel-media-');
 
-        parent::__construct($tmpfile, $originalName);
+        parent::__construct($tmpfile);
     }
 
     public function __destruct()
     {
-        @unlink($this->getPathname());
+        @unlink($this->path());
     }
 }

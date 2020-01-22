@@ -117,16 +117,32 @@ trait InteractsWithImage
 
     public function perform($file)
     {
-        $image = Image::make($file);
+        $image = Image::make($this->localizeFile($file));
 
         foreach ($this->actions as $action) $action($image);
 
-        $tmpfile = new TemporaryFile($file->getClientOriginalName());
+        // we create another tmp file to save conversion on it
+        $tmpfile = new TemporaryFile();
 
         $image->save($tmpfile);
 
         // if we don't run this, file will report false stat like size, etc
-        clearstatcache(true, $tmpfile->getPathname());
+        clearstatcache(true, $tmpfile->path());
+
+        return $tmpfile;
+    }
+
+    protected function localizeFile($file)
+    {
+        // if file is not remote, we do nothing
+        if (!$file instanceof RemoteFile) return $file;
+
+        // otherwise we create a local tmp file to work on it
+        $tmpfile = new TemporaryFile();
+
+        $handle = fopen($tmpfile->path(), 'w');
+        stream_copy_to_stream($file->readStream(), $handle);
+        fclose($handle);
 
         return $tmpfile;
     }

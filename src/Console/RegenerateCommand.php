@@ -121,18 +121,11 @@ EOF;
 
     protected function performManipulation(string $name, Media $originalMedia): void
     {
-        $tmpfile = new TemporaryFile();
-
-        // maybe the original media file is remote, so we create a local temp file to work on it
-        $handle = fopen($tmpfile->getPathname(), 'w');
-        stream_copy_to_stream($originalMedia->stream(), $handle);
-        fclose($handle);
-
         // delete old conversion
         $originalMedia->deleteConversion($name);
 
         // add new conversion
-        (new FileAdder($originalMedia->model, $tmpfile))
+        (new FileAdder($originalMedia->model, $originalMedia->file()))
                         ->toMediaConversion($name, $originalMedia);
     }
 }

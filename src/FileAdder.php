@@ -4,7 +4,6 @@ namespace Elegant\Media;
 
 use Elegant\Media\Contracts\PathGenerator;
 use Elegant\Media\Contracts\HasMedia;
-use Illuminate\Http\UploadedFile as File;
 
 class FileAdder
 {
@@ -16,7 +15,7 @@ class FileAdder
     protected $mediaProperties = [];
     protected $mediaManipulations = [];
 
-    public function __construct(HasMedia $model, File $file)
+    public function __construct(HasMedia $model, $file)
     {
         $this->model = $model;
         $this->file = $file;
@@ -71,7 +70,19 @@ class FileAdder
         $media->directory = $this->determineMediaDirectory($this->model, $this->file);
         $this->model->media()->save($media);
 
-        $media->storeFile($this->file, $this->preserveOriginal);
+        if ($this->file instanceof RemoteFile) {
+            $this->addRemoteFile($this->file);
+        } else {
+            $this->addFile($this->file);
+        }
+
+        Storage::disk($media->disk)->putFileAs($media->directory, $this->file, $media->name);
+
+        $media->storeFile($this->file);
+
+        if (!$this->preserveOriginal) {
+            (new FileRemover($this->file))->toNullity();
+        }
 
         $manipulations = array_merge($this->mediaManipulations, $group->getManipulations());
 
@@ -102,7 +113,11 @@ class FileAdder
         $media->directory = $this->determineConversionDirectory($originalMedia, $manipulation, $this->file);
         $originalMedia->conversions()->save($media);
 
-        $media->storeFile($file, false);
+        $this->addFile();
+
+        $media->storeFile($file);
+
+        (new FileRemover($this->file))->toNullity();
     }
 
     protected function getPathGenerator(): PathGenerator
@@ -110,22 +125,22 @@ class FileAdder
         return resolve(config('media.path_generator'));
     }
 
-    protected function determineMediaName(HasMedia $model, File $file): string
+    protected function determineMediaName(HasMedia $model, $file): string
     {
         return $this->mediaName ?? $this->getPathGenerator()->getName($model, $file);
     }
 
-    protected function determineMediaDirectory(HasMedia $model, File $file): string
+    protected function determineMediaDirectory(HasMedia $model, $file): string
     {
         return $this->mediaDirectory ?? $this->getPathGenerator()->getDirectory($model, $file);
     }
 
-    protected function determineConversionName(Media $media, MediaManipulation $manipulation, File $file): string
+    protected function determineConversionName(Media $media, MediaManipulation $manipulation, $file): string
     {
         return $this->getPathGenerator()->getConversionName($media, $manipulation, $file);
     }
 
-    protected function determineConversionDirectory(Media $media, MediaManipulation $manipulation, File $file): string
+    protected function determineConversionDirectory(Media $media, MediaManipulation $manipulation, $file): string
     {
         return $this->getPathGenerator()->getConversionDirectory($media, $manipulation, $file);
     }
