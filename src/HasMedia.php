@@ -14,7 +14,7 @@ trait HasMedia
     public static function bootHasMedia(): void
     {
         static::deleted(function ($model) {
-            if (!in_array(SoftDeletes::class, class_uses_recursive($entity))) {
+            if (!in_array(SoftDeletes::class, class_uses_recursive($model))) {
                 $model->media->each->delete();
             }
         });
@@ -35,11 +35,11 @@ trait HasMedia
         return $this->mediaGroups[$name] = new MediaGroup($name);
     }
 
-    public function getMediaGroup(string $name): MediaGroup
+    public function getMediaGroup(string $name): ?MediaGroup
     {
         $this->registerMediaGroups();
 
-        return $this->mediaGroups[$name] ?? new MediaGroup($name);
+        return $this->mediaGroups[$name] ?? null;
     }
 
     public function registerMediaGroups(): void

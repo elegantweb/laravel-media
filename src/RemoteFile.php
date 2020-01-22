@@ -59,6 +59,11 @@ class RemoteFile
         return Storage::disk($this->disk)->mimeType($this->path) ?: null;
     }
 
+    public function getSize(): int
+    {
+        return Storage::disk($this->disk)->size($this->path);
+    }
+
     public function exists(): bool
     {
         return Storage::disk($this->disk)->exists($this->path);
@@ -67,11 +72,6 @@ class RemoteFile
     public function missing(): bool
     {
         return !$this->exists();
-    }
-
-    public function size(): int
-    {
-        return Storage::disk($this->disk)->size($this->path);
     }
 
     public function delete(): bool

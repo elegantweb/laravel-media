@@ -19,7 +19,7 @@ interface HasMedia
     public function getMediaManipulation(string $name): ?MediaManipulation;
 
     public function addMediaGroup(string $name): MediaGroup;
-    public function getMediaGroup(string $name): MediaGroup;
+    public function getMediaGroup(string $name): ?MediaGroup;
 
     public function getFallbackMediaUrl(string $group = 'default', string $manipulation = null): ?string;
     public function getFallbackMediaPath(string $group = 'default', string $manipulation = null): ?string;

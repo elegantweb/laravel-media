@@ -94,6 +94,10 @@ EOF;
     {
         $group = $media->model->getMediaGroup($media->group);
 
+        if (null === $group) {
+            return;
+        }
+
         $manipulations = $group->getManipulations();
 
         foreach ($manipulations as $manipulation) {

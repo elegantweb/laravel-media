@@ -22,9 +22,9 @@ class Media extends Model implements Responsable
     {
         parent::boot();
 
-        static::deleted(function ($medium) {
-            $medium->deleteConversions();
-            $medium->deleteFile();
+        static::deleted(function ($media) {
+            $media->conversions->each->delete();
+            $media->file()->delete();
         });
     }
 
@@ -51,11 +51,6 @@ class Media extends Model implements Responsable
     public function deleteConversion(string $manipulation): bool
     {
         return $this->conversions()->where('manipulation', $manipulation)->delete();
-    }
-
-    public function deleteConversions(): void
-    {
-        $this->conversions->each->delete();
     }
 
     public function getPathAttribute()

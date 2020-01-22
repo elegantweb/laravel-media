@@ -61,6 +61,10 @@ class FileAdder
     {
         $group = $this->model->getMediaGroup($name);
 
+        if (null === $group) {
+            $group = new MediaGroup($name);
+        }
+
         $media = new Media();
         $media->disk = $group->getDiskName();
         $media->group = $group->getName();
@@ -72,7 +76,7 @@ class FileAdder
         $this->model->media()->save($media);
 
         if ($this->file instanceof RemoteFile) {
-            Storage::disk($media->disk)->put($media->directory, $this->file->readStream(), $media->name);
+            Storage::disk($media->disk)->put($media->path, $this->file->readStream());
         } else {
             Storage::disk($media->disk)->putFileAs($media->directory, $this->file, $media->name);
         }
@@ -97,6 +101,10 @@ class FileAdder
     public function toMediaConversion(string $manipulationName, Media $originalMedia): void
     {
         $manipulation = $this->model->getMediaManipulation($manipulationName);
+
+        if (null === $group) {
+            throw new \Exception("Manipulation {$manipulationName} is not registered.");
+        }
 
         $file = $manipulation->perform($this->file);
 
