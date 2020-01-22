@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\Request;
-use Illuminate\Http\File;
+use Illuminate\Http\UploadedFile as File;
 
 class Media extends Model implements Responsable
 {
@@ -109,7 +109,7 @@ class Media extends Model implements Responsable
         return Storage::disk($this->disk)->response($this->getPath($manipulation));
     }
 
-    public function toResponse($request)
+    public function toResponse(Request $request)
     {
         return $this->response();
     }

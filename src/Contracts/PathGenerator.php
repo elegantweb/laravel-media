@@ -4,7 +4,7 @@ namespace Elegant\Media\Contracts;
 
 use Elegant\Media\Media;
 use Elegant\Media\MediaManipulation;
-use Illuminate\Http\File;
+use Illuminate\Http\UploadedFile as File;
 
 interface PathGenerator
 {

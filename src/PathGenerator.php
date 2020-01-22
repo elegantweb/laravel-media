@@ -4,7 +4,7 @@ namespace Elegant\Media;
 
 use Elegant\Media\Contracts\HasMedia;
 use Elegant\Media\Contracts\PathGenerator as PathGeneratorContract;
-use Illuminate\Http\File;
+use Illuminate\Http\UploadedFile as File;
 use Illuminate\Support\Str;
 
 class PathGenerator implements PathGeneratorContract

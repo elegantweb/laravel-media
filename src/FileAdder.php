@@ -4,7 +4,7 @@ namespace Elegant\Media;
 
 use Elegant\Media\Contracts\PathGenerator;
 use Elegant\Media\Contracts\HasMedia;
-use Illuminate\Http\File;
+use Illuminate\Http\UploadedFile as File;
 
 class FileAdder
 {

@@ -3,7 +3,6 @@
 namespace Elegant\Media;
 
 use Elegant\Media\Concerns\InteractsWithImage;
-use Illuminate\Http\File;
 
 class MediaManipulation
 {

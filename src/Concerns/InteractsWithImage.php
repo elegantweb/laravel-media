@@ -121,11 +121,11 @@ trait InteractsWithImage
 
         foreach ($this->actions as $action) $action($image);
 
-        $tmpfile = new TemporaryFile();
+        $tmpfile = new TemporaryFile($file->getClientOriginalName());
 
         $image->save($tmpfile);
 
-        // if we don't run this, file will report false size
+        // if we don't run this, file will report false stat like size, etc
         clearstatcache(true, $tmpfile->getPathname());
 
         return $tmpfile;
