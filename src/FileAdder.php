@@ -71,12 +71,10 @@ class FileAdder
         $this->model->media()->save($media);
 
         if ($this->file instanceof RemoteFile) {
-            $this->addRemoteFile($this->file);
+            Storage::disk($media->disk)->put($media->directory, $this->file->readStream(), $media->name);
         } else {
-            $this->addFile($this->file);
+            Storage::disk($media->disk)->putFileAs($media->directory, $this->file, $media->name);
         }
-
-        Storage::disk($media->disk)->putFileAs($media->directory, $this->file, $media->name);
 
         $media->storeFile($this->file);
 
