@@ -101,7 +101,7 @@ trait HasMedia
 
     public function hasMedia(string $group = 'default'): bool
     {
-        return $this->getMedia()->isNotEmpty();
+        return $this->media()->where('group', $group)->exists();
     }
 
     public function getMedia(string $group = 'default'): Collection
