@@ -26,6 +26,7 @@ interface HasMedia
 
     public function hasMedia(string $group = 'default'): bool;
     public function getMedia(string $group = 'default'): Collection;
+
     public function getFirstMedia(string $group = 'default'): ?Media;
     public function getFirstMediaUrl(string $group = 'default', string $manipulation = null): ?string;
     public function getFirstMediaPath(string $group = 'default', string $manipulation = null): ?string;
