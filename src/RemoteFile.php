@@ -1,6 +1,6 @@
 <?php
 
-namespace Elegant\Media\Contracts;
+namespace Elegant\Media;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\FileHelpers;
