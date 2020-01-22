@@ -113,7 +113,7 @@ EOF;
         if (!$originalMedia->hasConversion($name))
             return true;
 
-        if ($originalMedia->getConversion($name)->fileExists())
+        if ($originalMedia->getConversion($name)->file()->exists())
             return !$this->option('only-missing');
 
         return true;

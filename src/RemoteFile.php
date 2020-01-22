@@ -44,7 +44,7 @@ class RemoteFile
         return Storage::disk($this->disk)->response($this->path);
     }
 
-    public function readStream(): ?resource
+    public function readStream()
     {
         return Storage::disk($this->disk)->readStream($this->path);
     }

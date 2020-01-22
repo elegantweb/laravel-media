@@ -4,6 +4,7 @@ namespace Elegant\Media;
 
 use Elegant\Media\Contracts\PathGenerator;
 use Elegant\Media\Contracts\HasMedia;
+use Illuminate\Support\Facades\Storage;
 
 class FileAdder
 {
@@ -76,16 +77,14 @@ class FileAdder
             Storage::disk($media->disk)->putFileAs($media->directory, $this->file, $media->name);
         }
 
-        $media->storeFile($this->file);
-
-        if (!$this->preserveOriginal) {
-            (new FileRemover($this->file))->toNullity();
-        }
-
         $manipulations = array_merge($this->mediaManipulations, $group->getManipulations());
 
         foreach ($manipulations as $manipulation) {
             $this->toMediaConversion($manipulation, $media);
+        }
+
+        if (!$this->preserveOriginal) {
+            $this->deleteFile();
         }
 
         $collection = $this->model->getMedia($group->getName());
@@ -111,11 +110,16 @@ class FileAdder
         $media->directory = $this->determineConversionDirectory($originalMedia, $manipulation, $this->file);
         $originalMedia->conversions()->save($media);
 
-        $this->addFile();
+        Storage::disk($media->disk)->putFileAs($media->directory, $file, $media->name);
+    }
 
-        $media->storeFile($file);
-
-        (new FileRemover($this->file))->toNullity();
+    protected function deleteFile()
+    {
+        if ($this->file instanceof RemoteFile) {
+            $this->file->delete();
+        } else {
+            unlink($this->file->path());
+        }
     }
 
     protected function getPathGenerator(): PathGenerator

@@ -2,6 +2,7 @@
 
 namespace Elegant\Media\Concerns;
 
+use Elegant\Media\RemoteFile;
 use Elegant\Media\TemporaryFile;
 use Elegant\Media\Image\SepiaFilter;
 use Intervention\Image\ImageManagerStatic as Image;
