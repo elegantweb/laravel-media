@@ -14,7 +14,6 @@ class FileAdder
     protected $mediaName;
     protected $mediaDirectory;
     protected $mediaProperties = [];
-    protected $mediaManipulations = [];
 
     public function __construct(HasMedia $model, $file)
     {
@@ -50,13 +49,6 @@ class FileAdder
         return $this;
     }
 
-    public function useManipulations(array $manipulations): self
-    {
-        $this->mediaManipulations = $manipulations;
-
-        return $this;
-    }
-
     public function toMediaGroup(string $name = 'default'): void
     {
         $group = $this->model->getMediaGroup($name);
@@ -81,7 +73,7 @@ class FileAdder
             Storage::disk($media->disk)->putFileAs($media->directory, $this->file, $media->name);
         }
 
-        $manipulations = array_merge($this->mediaManipulations, $group->getManipulations());
+        $manipulations = $group->getManipulations();
 
         foreach ($manipulations as $manipulation) {
             $this->toMediaConversion($manipulation, $media);
