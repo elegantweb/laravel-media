@@ -94,7 +94,7 @@ class FileAdder
     {
         $manipulation = $this->model->getMediaManipulation($manipulationName);
 
-        if (null === $group) {
+        if (null === $manipulation) {
             throw new \Exception("Manipulation {$manipulationName} is not registered.");
         }
 
