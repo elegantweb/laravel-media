@@ -64,12 +64,12 @@ trait HasMedia
 
     public function getFallbackMediaUrl(string $group = 'default', string $manipulation = null): ?string
     {
-        return $this->getMediaGroup($group)->getFallbackUrl($manipulation);
+        return optional($this->getMediaGroup($group))->getFallbackUrl($manipulation);
     }
 
     public function getFallbackMediaPath(string $group = 'default', string $manipulation = null): ?string
     {
-        return $this->getMediaGroup($group)->getFallbackPath($manipulation);
+        return optional($this->getMediaGroup($group))->getFallbackPath($manipulation);
     }
 
     public function getFirstMedia(string $group = 'default'): ?Media
