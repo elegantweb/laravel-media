@@ -35,7 +35,7 @@ class Media extends Model implements Responsable
 
     public function conversions(): MorphMany
     {
-        return $this->morphMany(Media::class, 'model');
+        return $this->morphMany(config('media.model'), 'model');
     }
 
     public function hasConversion(string $manipulation): bool
