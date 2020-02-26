@@ -22,7 +22,7 @@ trait HasMedia
 
     public function media(): MorphMany
     {
-        return $this->morphMany(Media::class, 'model');
+        return $this->morphMany(config('media.model'), 'model');
     }
 
     public function addMedia($file): FileAdder
