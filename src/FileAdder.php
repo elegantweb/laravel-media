@@ -5,9 +5,12 @@ namespace Elegant\Media;
 use Elegant\Media\Contracts\PathGenerator;
 use Elegant\Media\Contracts\HasMedia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Traits\Macroable;
 
 class FileAdder
 {
+    use Macroable;
+
     protected $model;
     protected $file;
     protected $preserveOriginal = false;
@@ -57,7 +60,8 @@ class FileAdder
             $group = new MediaGroup($name);
         }
 
-        $media = new Media();
+        $mediaClass = config('media.model');
+        $media = new $mediaClass();
         $media->disk = $group->getDiskName();
         $media->group = $group->getName();
         $media->properties = array_merge($this->mediaProperties, $group->getProperties());
@@ -100,7 +104,8 @@ class FileAdder
 
         $file = $manipulation->perform($this->file);
 
-        $media = new Media();
+        $mediaClass = config('media.model');
+        $media = new $mediaClass();
         $media->disk = $manipulation->getDiskName() ?? $originalMedia->disk;
         $media->group = 'conversions';
         $media->manipulation = $manipulation->getName();
