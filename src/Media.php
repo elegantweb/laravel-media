@@ -21,9 +21,12 @@ class Media extends Model implements Responsable
     protected static function boot(): void
     {
         parent::boot();
+        
+        static::deleting(function ($media) {
+            $media->conversions->each->delete();
+        });
 
         static::deleted(function ($media) {
-            $media->conversions->each->delete();
             $media->file()->delete();
         });
     }
