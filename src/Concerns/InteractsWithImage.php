@@ -6,6 +6,7 @@ use Elegant\Media\RemoteFile;
 use Elegant\Media\TemporaryFile;
 use Elegant\Media\Image\SepiaFilter;
 use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\Filters\FilterInterface;
 
 trait InteractsWithImage
 {
@@ -97,9 +98,7 @@ trait InteractsWithImage
 
     public function sepia()
     {
-        $this->actions[] = fn($img) => $img->filter(new SepiaFilter());
-
-        return $this;
+        return $this->filter(new SepiaFilter());
     }
 
     public function sharpen(int $amount = null)
@@ -112,6 +111,13 @@ trait InteractsWithImage
     public function insert($source, string $position = null, int $x = null, int $y = null)
     {
         $this->actions[] = fn($img) => $img->insert($opacity, $position, $x, $y);
+
+        return $this;
+    }
+
+    public function filter(FilterInterface $filter)
+    {
+        $this->actions[] = fn($img) => $img->filter($filter);
 
         return $this;
     }
