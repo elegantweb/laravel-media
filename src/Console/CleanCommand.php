@@ -75,9 +75,10 @@ EOF;
     {
         $media = Media::where('disk', $this->diskName)->where('manipulation', '!=', null)->get();
 
-        foreach ($media as $m) {
-            if (null === $m->model->model->getMediaManipulation($m->manipulation)) {
-                $this->deleteMedia($m);
+        foreach ($media as $conv) {
+            $group = $conv->model->model->getMediaGroup($conv->model->group);
+            if (null === $group or !in_array($conv->manipulation, $group->getManipulations())) {
+                $this->deleteMedia($conv);
             }
         }
     }
