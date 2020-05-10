@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Media extends Model implements Responsable
 {
+    protected $table = 'media';
+
     protected $casts = [
         'properties' => 'array',
     ];
