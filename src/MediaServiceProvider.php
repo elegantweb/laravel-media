@@ -15,19 +15,19 @@ class MediaServiceProvider extends ServiceProvider
     ];
 
     /**
-     * Bootstrap the service provider.
+     * Bootstrap any application services.
      *
      * @return void
      */
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {
-            $this->registerConsole();
+            $this->bootConsole();
         }
     }
 
     /**
-     * Register the service provider.
+     * Register any application services.
      *
      * @return void
      */
@@ -37,11 +37,11 @@ class MediaServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register console related dependencies.
+     * Bootstrap console related services.
      *
      * @return void
      */
-    protected function registerConsole(): void
+    protected function bootConsole(): void
     {
         $this->commands($this->commands);
 
