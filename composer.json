@@ -1,5 +1,6 @@
 {
     "name": "elegantweb/laravel-media",
+    "description": "Media library for the Laravel framework.",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -12,15 +13,22 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.4",
-        "laravel/framework": "^6.0",
+        "laravel/framework": "^8.0",
         "intervention/image": "^2.5"
     },
     "require-dev": {
-        "orchestra/testbench": "~3.0"
+        "orchestra/testbench": "~6.0",
+        "phpunit/phpunit": "^9.0"
     },
     "autoload": {
         "psr-4": {
             "Elegant\\Media\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Elegant\\Media\\Tests\\": "tests/",
+            "Elegant\\Media\\Tests\\Database\\Factories\\": "tests/database/factories/"
         }
     },
     "extra": {
@@ -29,5 +37,8 @@
                 "Elegant\\Media\\MediaServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }
