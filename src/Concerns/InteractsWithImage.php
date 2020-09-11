@@ -110,7 +110,7 @@ trait InteractsWithImage
 
     public function insert($source, string $position = null, int $x = null, int $y = null)
     {
-        $this->actions[] = fn($img) => $img->insert($opacity, $position, $x, $y);
+        $this->actions[] = fn($img) => $img->insert($source, $position, $x, $y);
 
         return $this;
     }
