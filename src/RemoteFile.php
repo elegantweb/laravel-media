@@ -2,6 +2,7 @@
 
 namespace Elegant\Media;
 
+use DateTimeInterface;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\FileHelpers;
 use Symfony\Component\Mime\MimeTypes;

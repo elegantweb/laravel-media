@@ -13,13 +13,21 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $this->artisan('migrate', ['--database' => 'testbench'])->run();
-
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
         Factory::guessFactoryNamesUsing(function (string $modelName) {
             return __NAMESPACE__ . '\Database\Factories' . Str::after($modelName, __NAMESPACE__ . '\Fixtures\Models') . 'Factory';
         });
+    }
+
+    protected function setUpTraits()
+    {
+        $uses = parent::setUpTraits();
+
+        if (isset($uses[RefreshStorage::class])) {
+            $this->refreshStorage();
+        }
     }
 
     protected function getPackageProviders($app)
@@ -34,6 +42,14 @@ class TestCase extends BaseTestCase
             'driver' => 'sqlite',
             'database' => ':memory:',
             'prefix' => '',
+        ]);
+
+        $app['config']->set('media.disk', 'testbench');
+
+        $app['config']->set('filesystems.default', 'testbench');
+        $app['config']->set('filesystems.disks.testbench', [
+            'driver' => 'local',
+            'root' => __DIR__ . '/storage',
         ]);
     }
 }
