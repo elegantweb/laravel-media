@@ -12,6 +12,9 @@ class FileAdder
     use Macroable;
 
     protected $model;
+    /**
+     * @var \Illuminate\Http\File|\Illuminate\Http\UploadedFile|RemoteFile
+     */
     protected $file;
     protected $preserveOriginal = false;
     protected $mediaName;
