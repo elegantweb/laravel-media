@@ -2,6 +2,7 @@
 
 namespace Elegant\Media;
 
+use InvalidArgumentException;
 use DateTimeInterface;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\FileHelpers;
@@ -50,8 +51,14 @@ class RemoteFile
         return Storage::disk($this->disk)->readStream($this->path);
     }
 
-    public function writeStream(resource $resource, array $options = []): bool
+    /**
+     * @param resource $resource
+     */
+    public function writeStream($resource, array $options = []): bool
     {
+        if (!is_resource($resource))
+            throw new InvalidArgumentException(sprintf('Argument resource must be a valid resource type. %s given.', gettype($resource)));
+
         return Storage::disk($this->disk)->writeStream($this->path, $resource, $options);
     }
 
