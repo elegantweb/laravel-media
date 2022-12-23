@@ -2,17 +2,15 @@
 
 namespace Elegant\Media;
 
-use Illuminate\Database\Eloquent\Model;
-
 class MediaGroup
 {
-    protected $name;
-    protected $size;
-    protected $diskName;
-    protected $mediaProperties = [];
-    protected $mediaManipulations = [];
-    protected $fallbackUrls = [];
-    protected $fallbackPaths = [];
+    protected string $name;
+    protected ?string $diskName = null;
+    protected ?int $size = null;
+    protected array $mediaProperties = [];
+    protected array $mediaManipulations = [];
+    protected array $fallbackUrls = [];
+    protected array $fallbackPaths = [];
 
     public function __construct(string $name)
     {
@@ -24,7 +22,7 @@ class MediaGroup
         return $this->name;
     }
 
-    public function onlyKeepLatest(int $size): self
+    public function onlyKeepLatest(int $size): static
     {
         $this->size = $size;
 
@@ -36,14 +34,14 @@ class MediaGroup
         return $this->size;
     }
 
-    public function singleFile(): self
+    public function singleFile(): static
     {
         $this->onlyKeepLatest(1);
 
         return $this;
     }
 
-    public function useDisk(string $name): self
+    public function useDisk(string $name): static
     {
         $this->diskName = $name;
 
@@ -55,7 +53,7 @@ class MediaGroup
         return $this->diskName ?? config('media.disk');
     }
 
-    public function withProperties(array $properties): self
+    public function withProperties(array $properties): static
     {
         $this->mediaProperties = $properties;
 
@@ -67,7 +65,7 @@ class MediaGroup
         return $this->mediaProperties;
     }
 
-    public function useManipulations(array $manipulations): self
+    public function useManipulations(array $manipulations): static
     {
         $this->mediaManipulations = $manipulations;
 
@@ -79,7 +77,7 @@ class MediaGroup
         return $this->mediaManipulations;
     }
 
-    public function useFallbackUrl(string $url, string $manipulation = null): self
+    public function useFallbackUrl(string $url, string $manipulation = null): static
     {
         $this->fallbackUrls[$manipulation] = $url;
 
@@ -91,7 +89,7 @@ class MediaGroup
         return $this->fallbackUrls[$manipulation] ?? $this->fallbackUrls[null] ?? null;
     }
 
-    public function useFallbackPath(string $path, string $manipulation = null): self
+    public function useFallbackPath(string $path, string $manipulation = null): static
     {
         $this->fallbackPaths[$manipulation] = $path;
 

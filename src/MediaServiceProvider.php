@@ -6,10 +6,7 @@ use Illuminate\Support\ServiceProvider;
 
 class MediaServiceProvider extends ServiceProvider
 {
-    /**
-     * @var array
-     */
-    protected $commands = [
+    protected array $commands = [
         Console\CleanCommand::class,
         Console\RegenerateCommand::class,
     ];

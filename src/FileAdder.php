@@ -4,6 +4,8 @@ namespace Elegant\Media;
 
 use Elegant\Media\Contracts\PathGenerator;
 use Elegant\Media\Contracts\HasMedia;
+use Illuminate\Http\File;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Traits\Macroable;
 
@@ -11,44 +13,41 @@ class FileAdder
 {
     use Macroable;
 
-    protected $model;
-    /**
-     * @var \Illuminate\Http\File|\Illuminate\Http\UploadedFile|RemoteFile
-     */
-    protected $file;
-    protected $preserveOriginal = false;
-    protected $mediaName;
-    protected $mediaDirectory;
-    protected $mediaProperties = [];
+    protected HasMedia $model;
+    protected File|UploadedFile|RemoteFile $file;
+    protected bool $preserveOriginal = false;
+    protected string $mediaName;
+    protected string $mediaDirectory;
+    protected array $mediaProperties = [];
 
-    public function __construct(HasMedia $model, $file)
+    public function __construct(HasMedia $model, File|UploadedFile|RemoteFile $file)
     {
         $this->model = $model;
         $this->file = $file;
     }
 
-    public function preserveOriginal(): self
+    public function preserveOriginal(): static
     {
         $this->preserveOriginal = true;
 
         return $this;
     }
 
-    public function useName(string $name): self
+    public function useName(string $name): static
     {
         $this->mediaName = $name;
 
         return $this;
     }
 
-    public function useDirectory(string $directory): self
+    public function useDirectory(string $directory): static
     {
         $this->mediaDirectory = $directory;
 
         return $this;
     }
 
-    public function withProperties(array $properties): self
+    public function withProperties(array $properties): static
     {
         $this->mediaProperties = $properties;
 
@@ -74,10 +73,12 @@ class FileAdder
         $media->directory = $this->determineMediaDirectory($this->model, $this->file);
         $this->model->media()->save($media);
 
+        /** @var \Illuminate\Filesystem\FilesystemAdapter */
+        $disk = Storage::disk($media->disk);
         if ($this->file instanceof RemoteFile) {
-            Storage::disk($media->disk)->put($media->path, $this->file->readStream());
+            $disk->put($media->path, $this->file->readStream());
         } else {
-            Storage::disk($media->disk)->putFileAs($media->directory, $this->file, $media->name);
+            $disk->putFileAs($media->directory, $this->file, $media->name);
         }
 
         $manipulations = $group->getManipulations();
@@ -118,7 +119,9 @@ class FileAdder
         $media->directory = $this->determineConversionDirectory($originalMedia, $manipulation, $this->file);
         $originalMedia->conversions()->save($media);
 
-        Storage::disk($media->disk)->putFileAs($media->directory, $file, $media->name);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter */
+        $disk = Storage::disk($media->disk);
+        $disk->putFileAs($media->directory, $file, $media->name);
     }
 
     protected function deleteFile()

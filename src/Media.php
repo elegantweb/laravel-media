@@ -7,6 +7,7 @@ use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Media extends Model implements Responsable
 {
@@ -58,22 +59,22 @@ class Media extends Model implements Responsable
         return $this->conversions()->where('manipulation', $manipulation)->delete();
     }
 
-    public function getPathAttribute()
+    public function getPathAttribute(): string
     {
         return "{$this->directory}/{$this->name}";
     }
 
-    public function getExtensionAttribute()
+    public function getExtensionAttribute(): string
     {
         return pathinfo($this->name, PATHINFO_EXTENSION);
     }
 
-    public function getFilenameAttribute()
+    public function getFilenameAttribute(): string
     {
         return pathinfo($this->name, PATHINFO_FILENAME);
     }
 
-    public function scopePath($query, string $path)
+    public function scopePath($query, string $path): void
     {
         $query->where('name', pathinfo($path, PATHINFO_BASENAME));
         $query->where('directory', pathinfo($path, PATHINFO_DIRNAME));
@@ -100,25 +101,28 @@ class Media extends Model implements Responsable
         return optional($this->getConversion($manipulation))->getTemporaryUrl($expiration, null, $options);
     }
 
-    public function download(string $manipulation = null)
+    public function download(string $manipulation = null): ?StreamedResponse
     {
         if (null === $manipulation) return $this->file()->download();
 
         return optional($this->getConversion($manipulation))->download();
     }
 
-    public function response(string $manipulation = null)
+    public function response(string $manipulation = null): ?StreamedResponse
     {
         if (null === $manipulation) return $this->file()->response();
 
         return optional($this->getConversion($manipulation))->response();
     }
 
-    public function toResponse($request)
+    public function toResponse($request): ?StreamedResponse
     {
         return $this->response();
     }
 
+    /**
+     * @return resource|null
+     */
     public function stream(string $manipulation = null)
     {
         if (null === $manipulation) return $this->file()->readStream();

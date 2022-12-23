@@ -6,49 +6,65 @@ use InvalidArgumentException;
 use DateTimeInterface;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\FileHelpers;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Mime\MimeTypes;
 
 class RemoteFile
 {
     use FileHelpers;
 
-    protected $disk;
-    protected $path;
+    protected string $diskName;
+    protected string $path;
 
-    public function __construct($path, $disk)
+    public function __construct(string $path, string $diskName)
     {
         $this->path = $path;
-        $this->disk = $disk;
+        $this->diskName = $diskName;
     }
 
-    public function getDisk(): string
+    public function getDiskName(): string
     {
-        return $this->disk;
+        return $this->diskName;
     }
 
     public function getUrl(): string
     {
-        return Storage::disk($this->disk)->url($this->path);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter */
+        $disk = Storage::disk($this->diskName);
+
+        return $disk->url($this->path);
     }
 
     public function getTemporaryUrl(DateTimeInterface $expiration, array $options = []): string
     {
-        return Storage::disk($this->disk)->temporaryUrl($this->path, $expiration, $options);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter */
+        $disk = Storage::disk($this->diskName);
+
+        return $disk->temporaryUrl($this->path, $expiration, $options);
     }
 
-    public function download()
+    public function download(): StreamedResponse
     {
-        return Storage::disk($this->disk)->download($this->path);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter */
+        $disk = Storage::disk($this->diskName);
+
+        return $disk->download($this->path);
     }
 
-    public function response()
+    public function response(): StreamedResponse
     {
-        return Storage::disk($this->disk)->response($this->path);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter */
+        $disk = Storage::disk($this->diskName);
+
+        return $disk->response($this->path);
     }
 
+    /**
+     * @return resource|null
+     */
     public function readStream()
     {
-        return Storage::disk($this->disk)->readStream($this->path);
+        return Storage::disk($this->diskName)->readStream($this->path);
     }
 
     /**
@@ -64,17 +80,20 @@ class RemoteFile
 
     public function getMimeType(): ?string
     {
-        return Storage::disk($this->disk)->mimeType($this->path) ?: null;
+        /** @var \Illuminate\Filesystem\FilesystemAdapter */
+        $disk = Storage::disk($this->diskName);
+
+        return $disk->mimeType($this->path) ?: null;
     }
 
     public function getSize(): int
     {
-        return Storage::disk($this->disk)->size($this->path);
+        return Storage::disk($this->diskName)->size($this->path);
     }
 
     public function exists(): bool
     {
-        return Storage::disk($this->disk)->exists($this->path);
+        return Storage::disk($this->diskName)->exists($this->path);
     }
 
     public function missing(): bool
@@ -84,7 +103,7 @@ class RemoteFile
 
     public function delete(): bool
     {
-        return Storage::disk($this->disk)->delete($this->path);
+        return Storage::disk($this->diskName)->delete($this->path);
     }
 
     public function getRealPath(): string

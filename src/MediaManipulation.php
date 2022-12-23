@@ -8,8 +8,8 @@ class MediaManipulation
 {
     use InteractsWithImage;
 
-    protected $name;
-    protected $diskName;
+    protected string $name;
+    protected ?string $diskName = null;
 
     public function __construct(string $name)
     {
@@ -21,7 +21,7 @@ class MediaManipulation
         return $this->name;
     }
 
-    public function useDisk(string $name): self
+    public function useDisk(string $name): static
     {
         $this->diskName = $name;
 
