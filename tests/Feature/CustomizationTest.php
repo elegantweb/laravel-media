@@ -19,7 +19,7 @@ class CustomizationTest extends TestCase
 
         $post = Post::factory()->create();
 
-        $post->setCustomMediaModel(CustomMedia::class);
+        $post->setMediaModel(CustomMedia::class);
         $post->addMedia($image)->toMediaGroup();
 
         $this->assertInstanceOf(

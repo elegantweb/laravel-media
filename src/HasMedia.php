@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait HasMedia
 {
-    protected string|null $mediaModel = null;
     protected array $mediaGroups = [];
     protected array $mediaManipulations = [];
 
@@ -21,9 +20,14 @@ trait HasMedia
         });
     }
 
+    public function getMediaModel(): string
+    {
+        return config('media.model', Media::class);
+    }
+
     public function media(): MorphMany
     {
-        return $this->morphMany($this->mediaModel ?? config('media.model'), 'model');
+        return $this->morphMany($this->getMediaModel(), 'model');
     }
 
     public function addMedia($file): FileAdder
