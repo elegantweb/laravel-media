@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait HasMedia
 {
+    protected string|null $mediaModel = null;
     protected array $mediaGroups = [];
     protected array $mediaManipulations = [];
 
@@ -22,7 +23,7 @@ trait HasMedia
 
     public function media(): MorphMany
     {
-        return $this->morphMany(config('media.model'), 'model');
+        return $this->morphMany(config('media.model', $this->mediaModel), 'model');
     }
 
     public function addMedia($file): FileAdder
@@ -64,12 +65,12 @@ trait HasMedia
 
     public function getFallbackMediaUrl(string $group = 'default', string $manipulation = null): ?string
     {
-        return optional($this->getMediaGroup($group))->getFallbackUrl($manipulation);
+        return $this->getMediaGroup($group)?->getFallbackUrl($manipulation);
     }
 
     public function getFallbackMediaPath(string $group = 'default', string $manipulation = null): ?string
     {
-        return optional($this->getMediaGroup($group))->getFallbackPath($manipulation);
+        return $this->getMediaGroup($group)?->getFallbackPath($manipulation);
     }
 
     public function getFirstMedia(string $group = 'default'): ?Media

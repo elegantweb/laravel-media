@@ -13,12 +13,16 @@ class Media extends Model implements Responsable
 {
     protected $table = 'media';
 
+    protected $hidden = [
+        'properties',
+    ];
+
     protected $casts = [
         'properties' => 'array',
     ];
 
     protected $attributes = [
-        'properties' => '[]',
+        'properties' => '{}',
     ];
 
     protected static function boot(): void
@@ -84,35 +88,35 @@ class Media extends Model implements Responsable
     {
         if (null === $manipulation) return $this->path;
 
-        return optional($this->getConversion($manipulation))->path;
+        return $this->getConversion($manipulation)?->path;
     }
 
     public function getUrl(string $manipulation = null): ?string
     {
         if (null === $manipulation) return $this->file()->getUrl();
 
-        return optional($this->getConversion($manipulation))->getUrl();
+        return $this->getConversion($manipulation)?->getUrl();
     }
 
     public function getTemporaryUrl(DateTimeInterface $expiration, string $manipulation = null, array $options = []): ?string
     {
         if (null === $manipulation) return $this->file()->getTemporaryUrl($expiration, $options);
 
-        return optional($this->getConversion($manipulation))->getTemporaryUrl($expiration, null, $options);
+        return $this->getConversion($manipulation)?->getTemporaryUrl($expiration, null, $options);
     }
 
     public function download(string $manipulation = null): ?StreamedResponse
     {
         if (null === $manipulation) return $this->file()->download();
 
-        return optional($this->getConversion($manipulation))->download();
+        return $this->getConversion($manipulation)?->download();
     }
 
     public function response(string $manipulation = null): ?StreamedResponse
     {
         if (null === $manipulation) return $this->file()->response();
 
-        return optional($this->getConversion($manipulation))->response();
+        return $this->getConversion($manipulation)?->response();
     }
 
     public function toResponse($request): ?StreamedResponse
@@ -127,7 +131,7 @@ class Media extends Model implements Responsable
     {
         if (null === $manipulation) return $this->file()->readStream();
 
-        return optional($this->getConversion($manipulation))->readStream();
+        return $this->getConversion($manipulation)?->readStream();
     }
 
     public function file(): RemoteFile
