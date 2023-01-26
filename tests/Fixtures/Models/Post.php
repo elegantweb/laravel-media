@@ -10,4 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model implements HasMediaContract
 {
     use HasFactory, HasMedia;
+
+    public function setCustomMediaModel(string $class): void
+    {
+        $this->mediaModel = $class;
+    }
 }
