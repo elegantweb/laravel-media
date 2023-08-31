@@ -2,6 +2,8 @@
 
 namespace Elegant\Media;
 
+use Illuminate\Http\File;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -30,7 +32,7 @@ trait HasMedia
         return $this->morphMany($this->getMediaModel(), 'model');
     }
 
-    public function addMedia($file): FileAdder
+    public function addMedia(File|UploadedFile|RemoteFile $file): FileAdder
     {
         return new FileAdder($this, $file);
     }
