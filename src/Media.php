@@ -50,7 +50,7 @@ class Media extends Model implements Responsable
 
     public function getConversion(string $manipulation): ?Media
     {
-        return $this->conversions()->where('manipulation', $manipulation)->first();
+        return $this->conversions->where('manipulation', $manipulation)->first();
     }
 
     public function deleteConversion(string $manipulation): bool

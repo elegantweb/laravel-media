@@ -74,7 +74,7 @@ trait HasMedia
 
     public function getFirstMedia(string $group = 'default'): ?Media
     {
-        return $this->media()->where('group', $group)->first();
+        return $this->media->where('group', $group)->first();
     }
 
     public function getFirstMediaUrl(string $group = 'default', string $manipulation = null): ?string
@@ -106,6 +106,6 @@ trait HasMedia
 
     public function getMedia(string $group = 'default'): Collection
     {
-        return $this->media()->where('group', $group)->get();
+        return $this->media->where('group', $group);
     }
 }
