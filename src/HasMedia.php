@@ -77,11 +77,19 @@ trait HasMedia
         return $this->getMediaGroup($group)?->getFallbackPath($manipulation);
     }
 
+    /**
+     * Retrieves first media related to the model.
+     * NOTE: uses relationship data and it won't execute a new query each time called.
+     */
     public function getFirstMedia(string $group = 'default'): ?Media
     {
-        return $this->media()->where('group', $group)->first();
+        return $this->media->where('group', $group)->first();
     }
 
+    /**
+     * Retrieves URL of the first media related to the model.
+     * NOTE: uses relationship data and it won't execute a new query each time called.
+     */
     public function getFirstMediaUrl(string $group = 'default', string $manipulation = null): ?string
     {
         $media = $this->getFirstMedia($group);
@@ -109,8 +117,12 @@ trait HasMedia
         return $this->media()->where('group', $group)->exists();
     }
 
+    /**
+     * Retrieves all media related to the model.
+     * NOTE: uses relationship data and it won't execute a new query each time called.
+     */
     public function getMedia(string $group = 'default'): Collection
     {
-        return $this->media()->where('group', $group)->get();
+        return $this->media->where('group', $group);
     }
 }

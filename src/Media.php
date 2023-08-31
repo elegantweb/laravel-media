@@ -53,9 +53,13 @@ class Media extends Model implements Responsable
         return $this->conversions()->where('manipulation', $manipulation)->exists();
     }
 
+    /**
+     * Retrieves conversation of the media using the provided manipulation name.
+     * NOTE: uses relationship data and it won't execute a new query each time called.
+     */
     public function getConversion(string $manipulation): ?Media
     {
-        return $this->conversions()->where('manipulation', $manipulation)->first();
+        return $this->conversions->where('manipulation', $manipulation)->first();
     }
 
     public function deleteConversion(string $manipulation): bool

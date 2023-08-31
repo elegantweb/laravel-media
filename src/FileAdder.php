@@ -91,7 +91,9 @@ class FileAdder
             $this->deleteFile();
         }
 
-        $collection = $this->model->getMedia($group->getName());
+        // We should perform a new query here,
+        // Don't use model->getMedia method, the method uses relationship data.
+        $collection = $this->model->media()->where('group', $group->getName())->get();
 
         if (null !== $size = $group->getSize() and $size < $count = $collection->count()) {
             $collection->take($count - $size)->each->delete();
