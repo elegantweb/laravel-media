@@ -2,19 +2,19 @@
 
 namespace Elegant\Media\Image;
 
-use Intervention\Image\Image;
-use Intervention\Image\Filters\FilterInterface;
+use Intervention\Image\Interfaces\ImageInterface;
+use Intervention\Image\Interfaces\ModifierInterface;
 
-class SepiaFilter implements FilterInterface
+class SepiaModifier implements ModifierInterface
 {
     /**
      * Applies sepia filter to the image.
      *
      * @see https://github.com/thephpleague/glide/blob/master/src/Manipulators/Filter.php#L47-L52
-     * @param Image $image
-     * @return Image
+     * @param ImageInterface $image
+     * @return ImageInterface
      */
-    public function applyFilter(Image $image): Image
+    public function apply(ImageInterface $image): ImageInterface
     {
         $image->greyscale();
         $image->brightness(-10);
