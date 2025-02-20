@@ -125,6 +125,27 @@ trait InteractsWithImage
         return $this;
     }
 
+    public function toJpeg(int $quality = 75, bool $progressive = false, bool $strip = true)
+    {
+        $this->actions[] = fn (ImageInterface $img) => $img->toJpeg($quality, $progressive, $strip);
+
+        return $this;
+    }
+
+    public function toWebp(int $quality = 75, bool $strip = true)
+    {
+        $this->actions[] = fn (ImageInterface $img) => $img->toWebp($quality, $strip);
+
+        return $this;
+    }
+
+    public function toPng(bool $interlaced = false, bool $indexed = false)
+    {
+        $this->actions[] = fn (ImageInterface $img) => $img->toPng($interlaced, $indexed);
+
+        return $this;
+    }
+
     public function perform($file): TemporaryFile
     {
         $manager = ImageManager::gd();
