@@ -125,21 +125,21 @@ trait InteractsWithImage
         return $this;
     }
 
-    public function toJpeg(int $quality = 75, bool $progressive = false, bool $strip = true)
+    public function toJpeg(int $quality = 75, bool $progressive = false, bool $strip = true): static
     {
         $this->actions[] = fn (ImageInterface $img) => $img->toJpeg($quality, $progressive, $strip);
 
         return $this;
     }
 
-    public function toWebp(int $quality = 75, bool $strip = true)
+    public function toWebp(int $quality = 75, bool $strip = true): static
     {
         $this->actions[] = fn (ImageInterface $img) => $img->toWebp($quality, $strip);
 
         return $this;
     }
 
-    public function toPng(bool $interlaced = false, bool $indexed = false)
+    public function toPng(bool $interlaced = false, bool $indexed = false): static
     {
         $this->actions[] = fn (ImageInterface $img) => $img->toPng($interlaced, $indexed);
 
