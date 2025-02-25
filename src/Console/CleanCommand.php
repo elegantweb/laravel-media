@@ -128,7 +128,7 @@ EOF;
 
     protected function deleteMedia(Media $media): void
     {
-        $this->info("Media #{$media->getKey()} " . ($this->option('dry-run') ? 'found' : 'removed'));
+        $this->info("Orphan media #{$media->getKey()} " . ($this->option('dry-run') ? 'found' : 'removed'));
 
         if (!$this->option('dry-run')) {
             $media->delete();
