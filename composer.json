@@ -13,7 +13,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^8.0",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^11.0|^12.0",
         "intervention/image": "^3.11"
     },
     "require-dev": {
