@@ -3,7 +3,6 @@
 namespace Elegant\Media\Console;
 
 use Elegant\Media\Media;
-use Elegant\Media\TemporaryFile;
 use Elegant\Media\FileAdder;
 use Illuminate\Support\Collection;
 use Illuminate\Console\Command;
@@ -49,19 +48,14 @@ EOF;
 
         $media = $this->getMedia();
 
-        $bar = $this->output->createProgressBar($media->count());
-
         $this->info('Regenerating media conversions...');
 
-        $bar->start();
+        $this->info('Total:' . $media->count());
 
-        foreach ($media as $m) {
+        foreach ($media as $i => $m) {
             $this->generateMedia($m);
-            $bar->advance();
+            $this->line(($i + 1) . ": Media #{$m->getKey()} Done.");
         }
-
-        $bar->finish();
-        $this->line('');
 
         $this->info('All done!');
     }
@@ -92,8 +86,7 @@ EOF;
 
     protected function generateMedia(Media $media): void
     {
-        $group = $media->model->getMediaGroup($media->group);
-
+        $group = $media->model?->getMediaGroup($media->group);
         if (null === $group) {
             return;
         }

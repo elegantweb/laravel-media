@@ -2,6 +2,7 @@
 
 namespace Elegant\Media\Concerns;
 
+use Closure;
 use Elegant\Media\RemoteFile;
 use Elegant\Media\TemporaryFile;
 use Elegant\Media\Image\SepiaModifier;
@@ -13,7 +14,13 @@ use Intervention\Image\Interfaces\ModifierInterface;
 
 trait InteractsWithImage
 {
+    /**
+     * @var Closure[]
+     */
     protected array $actions = [];
+
+    protected Closure|null $encodeAction = null;
+    protected string|null $encodeExtension = null;
 
     public function width(int $width): static
     {
@@ -127,23 +134,31 @@ trait InteractsWithImage
 
     public function toJpeg(int $quality = 75, bool $progressive = false, bool $strip = true): static
     {
-        $this->actions[] = fn (ImageInterface $img) => $img->toJpeg($quality, $progressive, $strip);
+        $this->encodeAction = fn (ImageInterface $img) => $img->toJpeg($quality, $progressive, $strip);
+        $this->encodeExtension = 'jpeg';
 
         return $this;
     }
 
     public function toWebp(int $quality = 75, bool $strip = true): static
     {
-        $this->actions[] = fn (ImageInterface $img) => $img->toWebp($quality, $strip);
+        $this->encodeAction = fn (ImageInterface $img) => $img->toWebp($quality, $strip);
+        $this->encodeExtension = 'webp';
 
         return $this;
     }
 
     public function toPng(bool $interlaced = false, bool $indexed = false): static
     {
-        $this->actions[] = fn (ImageInterface $img) => $img->toPng($interlaced, $indexed);
+        $this->encodeAction = fn (ImageInterface $img) => $img->toPng($interlaced, $indexed);
+        $this->encodeExtension = 'png';
 
         return $this;
+    }
+
+    public function getExtension(): string|null
+    {
+        return $this->encodeExtension;
     }
 
     public function perform($file): TemporaryFile
@@ -156,7 +171,12 @@ trait InteractsWithImage
         // we create another tmp file to save conversion on it
         $tmpfile = new TemporaryFile();
 
-        $image->save($tmpfile);
+        $encodeAction = $this->encodeAction;
+        if (isset($encodeAction)) {
+            $encodeAction($image)->save($tmpfile);
+        } else {
+            $image->save($tmpfile);
+        }
 
         // if we don't run this, file will report false stat (like invalid size, etc)
         clearstatcache(true, $tmpfile->path());
@@ -170,11 +190,15 @@ trait InteractsWithImage
         if (!$file instanceof RemoteFile) return $file;
 
         // otherwise we create a local tmp file to work on it
-        $tmpfile = new TemporaryFile();
 
-        $handle = fopen($tmpfile->path(), 'w');
-        stream_copy_to_stream($file->readStream(), $handle);
-        fclose($handle);
+        $from = $file->readStream();
+
+        $tmpfile = new TemporaryFile();
+        $to = fopen($tmpfile->path(), 'w');
+        stream_copy_to_stream($from, $to);
+        fclose($to);
+
+        fclose($from);
 
         return $tmpfile;
     }

@@ -40,7 +40,7 @@ class Media extends Model implements Responsable
 
     public function model(): MorphTo
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
     }
 
     public function conversions(): MorphMany
@@ -62,9 +62,9 @@ class Media extends Model implements Responsable
         return $this->conversions->where('manipulation', $manipulation)->first();
     }
 
-    public function deleteConversion(string $manipulation): bool
+    public function deleteConversion(string $manipulation): void
     {
-        return $this->conversions()->where('manipulation', $manipulation)->delete();
+        $this->conversions()->where('manipulation', $manipulation)->get()->each->delete();
     }
 
     public function getPathAttribute(): string
